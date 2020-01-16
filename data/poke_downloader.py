@@ -11,6 +11,7 @@ Outputs:
     Downloaded pokemon frames
 
 """
+import csv
 import sys, os
 import requests
 from PIL import Image
@@ -41,8 +42,9 @@ def iter_frames(img):
     except EOFError:
         pass
 
-def gif_to_png(img,pokeIdx,genIdx):
+def gif_to_png(img,pokeIdx,genIdx,rows):
     for i,frame in enumerate(iter_frames(img)):
+        rows.append(['data/gen%d/%d-%d.png' % (genIdx,pokeIdx,i),genIdx])
         frame.save('gen%d/%d-%d.png' % (genIdx,pokeIdx,i))
     return
 
@@ -69,6 +71,7 @@ def main():
 
     # Initialize the generation index with the first gen
     genIdx = 1
+    rows   = []
 
     # Loop through all possible pokemon and download image
     for i in range(1,maxPoke):
@@ -80,7 +83,16 @@ def main():
 
         # Decompose gif into separate images
         img = Image.open('img.gif')
-        gif_to_png(img,i,genIdx)
+        gif_to_png(img,i,genIdx,rows)
+
+    # Make the labeled CSV here
+    csvFile = 'data.csv'
+    header = ['image_file','generation_number']
+    with open(csvFile,'wt') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(rows)
+
 
 if __name__ == "__main__":
     main()
