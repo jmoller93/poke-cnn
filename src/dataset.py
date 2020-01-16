@@ -5,7 +5,7 @@ This is the dataset class for the classification routine.
 It will have to perform transformations on the images
 
 Attributes:
-    __get__: Gets an item
+    __getitem__: Gets an item
     __init__: Initializes the class
     __len__: Length of the dataset
 
