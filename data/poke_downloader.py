@@ -12,8 +12,10 @@ Outputs:
 
 """
 import csv
+import shutil
 import sys, os
 import requests
+import numpy as np
 from PIL import Image
 
 # Downloader courtesy of https://stackoverflow.com/questions/39534830/how-to-download-this-gifdynamic-by-python
@@ -42,9 +44,30 @@ def iter_frames(img):
     except EOFError:
         pass
 
-def gif_to_png(img,pokeIdx,genIdx,rows):
+# Split the dataset into training, validation, and testing
+def split_dataset(d,idx):
+    # Save directory information
+    dir='./gen%d' % idx
+    nfiles=len(next(os.walk(dir))[2])
+
+    # Loop through training, validation, and testing set and sort data accordingly
+    for key,val in d.items():
+        # Count the number of files
+        filelist=next(os.walk(dir))[2]
+
+        # Make the directory if it does not exist
+        if not os.path.isdir('%s/%s' % (dir,key)):
+            os.mkdir('%s/%s' % (dir,key))
+
+        # Select a random number of files
+        files=np.random.choice(filelist,int(val['frac']*nfiles),replace=False)
+        for file in files:
+            shutil.move('%s/%s' % (dir,file),'%s/%s/%s' % (dir,key,file))
+            val['rows'].append(['data/gen%d/%s/%s' % (idx,key,file),idx])
+    return
+
+def gif_to_png(img,pokeIdx,genIdx):
     for i,frame in enumerate(iter_frames(img)):
-        rows.append(['data/gen%d/%d-%d.png' % (genIdx,pokeIdx,i),genIdx])
         frame.save('gen%d/%d-%d.png' % (genIdx,pokeIdx,i))
     return
 
@@ -71,11 +94,17 @@ def main():
 
     # Initialize the generation index with the first gen
     genIdx = 1
-    rows   = []
+
+    # The rows will be split into training, validation, and testing dataset
+    split   = {'train' : {'rows' : [], 'frac' : 0.70, 'file' : 'data_train.csv'},
+               'val'   : {'rows' : [], 'frac' : 0.15, 'file' : 'data_val.csv'},
+               'test'  : {'rows' : [], 'frac' : 0.15, 'file' : 'data_test.csv'}
+              }
 
     # Loop through all possible pokemon and download image
     for i in range(1,maxPoke):
         if i > d['%d' % genIdx]['max']:
+            split_dataset(split,genIdx)
             genIdx += 1
 
         # Download the gif here
@@ -83,15 +112,15 @@ def main():
 
         # Decompose gif into separate images
         img = Image.open('img.gif')
-        gif_to_png(img,i,genIdx,rows)
+        gif_to_png(img,i,genIdx)
 
     # Make the labeled CSV here
-    csvFile = 'data.csv'
     header = ['image_file','generation_number']
-    with open(csvFile,'wt') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        writer.writerows(rows)
+    for key,val in split.items():
+        with open(val['file'],'wt') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerows(val['rows'])
 
 
 if __name__ == "__main__":
