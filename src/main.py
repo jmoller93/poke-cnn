@@ -79,8 +79,8 @@ def train_model(model, loaders, criterion, optimizer, scheduler, device,batch_si
                 scheduler.step()
 
             # Calculate loss and accuracy for each
-            epoch_loss = running_loss / len(loaders[phase]) / float(batch_size)
-            epoch_acc = running_corrects.double() / len(loaders[phase]) / float(batch_size)
+            epoch_loss = running_loss / len(loaders[phase])
+            epoch_acc = running_corrects.double() / len(loaders[phase])
 
             # Print the loss
             print('Loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
