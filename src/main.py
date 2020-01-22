@@ -107,8 +107,8 @@ def test_model(model,loader,device,batch_size):
     # Initialize accuracy calculation
     correct = 0.0
     total   = 0.0
-    class_correct = list(0. for i in range(1,9))
-    class_total   = list(0. for i in range(1,10))
+    class_correct = list(0. for i in range(0,8))
+    class_total   = list(0. for i in range(0,8))
 
     # Iterate over data.
     for i,data in enumerate(loader,0):
@@ -135,11 +135,11 @@ def test_model(model,loader,device,batch_size):
 
     # Print accuracy of the model
     print('Total testing accuracy: {:.4f}'.format(accuracy))
-    for i in range(1,9):
+    for i in range(0,8):
         if class_total[i] != 0:
-            print('Accuracy of %3d generation : %2.2f %%' % (i,100*class_correct[i]/class_total[i]) )
+            print('Accuracy of %3d generation : %2.2f %%' % (i+1,100*class_correct[i]/class_total[i]) )
         else:
-            print('Accuracy of %3d generation : 00.00 %%' % i)
+            print('Accuracy of %3d generation : 00.00 %%' % i+1)
 
 def main():
     # Parse the inputs
@@ -201,6 +201,7 @@ def main():
 
     # Send the network to gpu if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.float()
     model.to(device)
 
     # If not loading file

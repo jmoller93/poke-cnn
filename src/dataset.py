@@ -43,9 +43,9 @@ class PokemonDataset(Dataset):
 
         img_name = os.path.join(self.root_dir,
                                 self.pokemon_frame.iloc[idx, 0])
-        image = io.imread(img_name)
-        gen   = self.pokemon_frame.iloc[idx, 1]
-        sample = {'image': image[:,:,:3], 'generation': gen }
+        poke_image = io.imread(img_name)
+        gen   = self.pokemon_frame.iloc[idx, 1] - 1
+        sample = {'image': poke_image[:,:,:3], 'generation': gen }
 
         if self.transform:
             sample = self.transform(sample)

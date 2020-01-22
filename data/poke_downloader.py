@@ -114,6 +114,9 @@ def main():
         img = Image.open('img.gif')
         gif_to_png(img,i,genIdx)
 
+    # One last split
+    split_dataset(split,genIdx)
+
     # Make the labeled CSV here
     header = ['image_file','generation_number']
     for key,val in split.items():
