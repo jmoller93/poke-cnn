@@ -51,7 +51,7 @@ def iter_frames(img):
         pass
 
 # Split the dataset into training, validation, and testing
-def split_dataset(d,idx):
+def split_dataset(d,types,idx):
     # Save directory information
     dir='./gen%d' % idx
     nfiles=len(next(os.walk(dir))[2])
@@ -70,11 +70,11 @@ def split_dataset(d,idx):
         for file in files:
             shutil.move('%s/%s' % (dir,file),'%s/%s/%s' % (dir,key,file))
             row = ['data/gen%d/%s/%s' % (idx,key,file),idx]
+            poke_idx = file.split('-')[0]
             # Pokemon database does not yet have info for 8th generation info
-            if idx!= 8:
-                poke_idx = file.split('-')[0]
-                types = get_types(poke_idx)
-                row.append(x for x in types)
+            if int(poke_idx) < 808:
+                for type in types[poke_idx]:
+                    row.append(type)
             val['rows'].append(row)
     return
 
@@ -113,10 +113,18 @@ def main():
                'test'  : {'rows' : [], 'frac' : 0.15, 'file' : 'data_test.csv'}
               }
 
+    # Type dictionary
+    types  = {}
+
     # Loop through all possible pokemon and download image
     for i in range(1,maxPoke):
+
+        # 8th gen not yet added to API
+        if i < 808:
+            types['%d' % i] = get_types(i)
+
         if i > d['%d' % genIdx]['max']:
-            split_dataset(split,genIdx)
+            split_dataset(split,types,genIdx)
             genIdx += 1
 
         # Download the gif here
@@ -127,10 +135,10 @@ def main():
         gif_to_png(img,i,genIdx)
 
     # One last split
-    split_dataset(split,genIdx)
+    split_dataset(split,types,genIdx)
 
     # Make the labeled CSV here
-    header = ['image_file','generation_number']
+    header = ['image_file','generation_number','types1','types2']
     for key,val in split.items():
         with open(val['file'],'wt') as f:
             writer = csv.writer(f)
