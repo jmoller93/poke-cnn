@@ -16,7 +16,13 @@ import shutil
 import sys, os
 import requests
 import numpy as np
+import pokebase as pb
 from PIL import Image
+
+# Append pokemon type data to dataset
+def get_types(idx):
+    types = [x.type.name for x in pb.pokemon(idx).types]
+    return types
 
 # Downloader courtesy of https://stackoverflow.com/questions/39534830/how-to-download-this-gifdynamic-by-python
 # I realize that may not be the best solution to link, but they did solve my problem...
@@ -63,7 +69,13 @@ def split_dataset(d,idx):
         files=np.random.choice(filelist,int(val['frac']*nfiles),replace=False)
         for file in files:
             shutil.move('%s/%s' % (dir,file),'%s/%s/%s' % (dir,key,file))
-            val['rows'].append(['data/gen%d/%s/%s' % (idx,key,file),idx])
+            row = ['data/gen%d/%s/%s' % (idx,key,file),idx]
+            # Pokemon database does not yet have info for 8th generation info
+            if idx!= 8:
+                poke_idx = file.split('-')[0]
+                types = get_types(poke_idx)
+                row.append(x for x in types)
+            val['rows'].append(row)
     return
 
 def gif_to_png(img,pokeIdx,genIdx):
