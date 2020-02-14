@@ -70,7 +70,7 @@ def split_dataset(d,types,idx):
         for file in files:
             shutil.move('%s/%s' % (dir,file),'%s/%s/%s' % (dir,key,file))
             row = ['data/gen%d/%s/%s' % (idx,key,file),idx]
-            poke_idx = file.split('-')[0]
+            poke_idx = file.split('.png')[0]
             # Pokemon database does not yet have info for 8th generation info
             if int(poke_idx) < 808:
                 for type in types[poke_idx]:
@@ -79,8 +79,12 @@ def split_dataset(d,types,idx):
     return
 
 def gif_to_png(img,pokeIdx,genIdx):
-    for i,frame in enumerate(iter_frames(img)):
-        frame.save('gen%d/%d-%d.png' % (genIdx,pokeIdx,i))
+    frames = []
+    for frame in iter_frames(img):
+        frames.append(frame)
+    rand_frame = np.random.randint(0,len(frames))
+    frame = frames[rand_frame]
+    frame.save('gen%d/%d.png' % (genIdx,pokeIdx))
     return
 
 def main():
