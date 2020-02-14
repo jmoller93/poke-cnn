@@ -18,6 +18,26 @@ from skimage import io, transform
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 
+# Type dictionary
+d = {'fire' : 0,
+     'water' : 1,
+     'grass' : 2,
+     'rock'  : 3,
+     'electric' : 4,
+     'bug' : 5,
+     'ground' : 6,
+     'normal' : 7,
+     'poison' : 8,
+     'psychic' : 9,
+     'ghost' : 10,
+     'dark' : 11,
+     'flying' : 12,
+     'fighting' : 13,
+     'steel' : 14,
+     'ice' : 15,
+     'fairy' : 16,
+     'dragon' : 17 }
+
 # Primarily generated from the pytorch tutorial: https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
 class PokemonDataset(Dataset):
     """Pokemon images dataset."""
@@ -45,7 +65,8 @@ class PokemonDataset(Dataset):
                                 self.pokemon_frame.iloc[idx, 0])
         poke_image = io.imread(img_name)
         gen   = self.pokemon_frame.iloc[idx, 1] - 1
-        sample = {'image': poke_image[:,:,:3], 'generation': gen }
+        type  = d[self.pokemon_frame.iloc[idx, 2]]
+        sample = {'image': poke_image[:,:,:3], 'generation': gen ,'typing' : type}
 
         if self.transform:
             sample = self.transform(sample)

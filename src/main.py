@@ -27,6 +27,26 @@ from dataset import PokemonDataset
 from transform import *
 from nnet import Net
 
+# Type dictionary
+d = {'0' : 'fire',
+     '1' : 'water',
+     '2' : 'grass',
+     '3' : 'rock',
+     '4' : 'electric',
+     '5' : 'bug',
+     '6' : 'ground',
+     '7' : 'normal',
+     '8' : 'poision',
+     '9' : 'psychic',
+     '10'  : 'ghost',
+     '11'  : 'dark',
+     '12'  : 'flying',
+     '13'  : 'fighting',
+     '14'  : 'steel',
+     '15'  : 'ice',
+     '16'  : 'fairy',
+     '17'  : 'dragon'}
+
 # Model trainer from https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html
 def train_model(model, loaders, criterion, optimizer, scheduler, device,batch_size, num_epochs=25):
     since = time.time()
@@ -53,7 +73,7 @@ def train_model(model, loaders, criterion, optimizer, scheduler, device,batch_si
 
             # Iterate over data.
             for i,data in enumerate(loaders[phase],0):
-                image, label = data['image'], data['generation']
+                image, label = data['image'], data['typing']
                 image = image.to(device)
                 label = label.to(device)
 
@@ -107,12 +127,13 @@ def test_model(model,loader,device,batch_size):
     # Initialize accuracy calculation
     correct = 0.0
     total   = 0.0
-    class_correct = list(0. for i in range(0,8))
-    class_total   = list(0. for i in range(0,8))
+    class_correct = list(0. for i in range(0,18))
+    class_total   = list(0. for i in range(0,18))
 
     # Iterate over data.
     for i,data in enumerate(loader,0):
-        images, labels = data['image'], data['generation']
+        #images, labels = data['image'], data['generation']
+        images, labels = data['image'], data['typing']
         images = images.to(device)
         labels = labels.to(device)
 
@@ -135,11 +156,11 @@ def test_model(model,loader,device,batch_size):
 
     # Print accuracy of the model
     print('Total testing accuracy: {:.4f}'.format(accuracy))
-    for i in range(0,8):
+    for i in range(0,18):
         if class_total[i] != 0:
-            print('Accuracy of %3d generation : %2.2f %%' % (i+1,100*class_correct[i]/class_total[i]) )
+            print('Accuracy of type %s : %2.2f %%' % (d['%d' % i],100*class_correct[i]/class_total[i]) )
         else:
-            print('Accuracy of %3d generation : 00.00 %%' % i+1)
+            print('Accuracy of type %s : 00.00 %%' % d['%d' % i])
 
 def main():
     # Parse the inputs

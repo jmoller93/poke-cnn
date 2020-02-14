@@ -31,7 +31,7 @@ class Rescale(object):
         self.output_size = output_size
 
     def __call__(self, sample):
-        image, gen = sample['image'], sample['generation']
+        image, gen, typing = sample['image'], sample['generation'], sample['typing']
 
         h, w = image.shape[:2]
         if isinstance(self.output_size, int):
@@ -46,7 +46,7 @@ class Rescale(object):
 
         img = transform.resize(image, (new_h, new_w))
 
-        return {'image': img, 'generation': gen}
+        return {'image': img,  'generation': gen, 'typing' : typing}
 
 
 class RandomCrop(object):
@@ -66,7 +66,7 @@ class RandomCrop(object):
             self.output_size = output_size
 
     def __call__(self, sample):
-        image, gen = sample['image'], sample['generation']
+        image, gen, typing = sample['image'], sample['generation'], sample['typing']
 
         h, w = image.shape[:2]
         new_h, new_w = self.output_size
@@ -77,18 +77,19 @@ class RandomCrop(object):
         image = image[top: top + new_h,
                       left: left + new_w]
 
-        return {'image': image,  'generation': gen}
+        return {'image': image,  'generation': gen, 'typing' : typing}
 
 
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample):
-        image, gen = sample['image'], sample['generation']
+        image, gen, typing = sample['image'], sample['generation'], sample['typing']
 
         # swap color axis because
         # numpy image: H x W x C
         # torch image: C X H X W
         image = image.transpose((2, 0, 1))
         return {'image': torch.from_numpy(image).float(),
-                'generation': gen}
+                'generation': gen,
+                'typing' : typing}
