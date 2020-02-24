@@ -229,7 +229,7 @@ def main():
     if not args.load:
         # Initialize loss function and training hyperparameters
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=1e-3, momentum=0.9)
+        optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9, weight_decay=0.05)
         exp_lr_scheduler = lr_scheduler.StepLR(optimizer,step_size=7,gamma=0.1)
 
         # Train the neural net for the appropriate number of epochs

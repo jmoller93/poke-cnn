@@ -53,38 +53,35 @@ def iter_frames(img):
 # Split the dataset into training, validation, and testing
 def split_dataset(d,types,idx):
     # Save directory information
-    dir='./gen%d' % idx
-    nfiles=len(next(os.walk(dir))[2])
+    genDir='./gen%d' % idx
+    ndirs=len(next(os.walk(genDir))[1])
 
     # Loop through training, validation, and testing set and sort data accordingly
     for key,val in d.items():
         # Count the number of files
-        filelist=next(os.walk(dir))[2]
+        dirlist=next(os.walk(genDir))[1]
 
         # Make the directory if it does not exist
-        if not os.path.isdir('%s/%s' % (dir,key)):
-            os.mkdir('%s/%s' % (dir,key))
+        if not os.path.isdir('%s/%s' % (genDir,key)):
+            os.mkdir('%s/%s' % (genDir,key))
 
         # Select a random number of files
-        files=np.random.choice(filelist,int(val['frac']*nfiles),replace=False)
-        for file in files:
-            shutil.move('%s/%s' % (dir,file),'%s/%s/%s' % (dir,key,file))
-            row = ['data/gen%d/%s/%s' % (idx,key,file),idx]
-            poke_idx = file.split('.png')[0]
-            # Pokemon database does not yet have info for 8th generation info
-            if int(poke_idx) < 808:
-                for type in types[poke_idx]:
-                    row.append(type)
-            val['rows'].append(row)
+        dirs=np.random.choice(dirlist,int(val['frac']*ndirs),replace=False)
+        for dir in dirs:
+            for file in next(os.walk('%s/%s' % (genDir,dir)))[2]:
+                shutil.move('%s/%s/%s' % (genDir,dir,file),'%s/%s/%s' % (genDir,key,file))
+                row = ['data/gen%d/%s/%s' % (idx,key,file),idx]
+                poke_idx = file.split('-')[0]
+                # Pokemon database does not yet have info for 8th generation info
+                if int(poke_idx) < 808:
+                    for type in types[poke_idx]:
+                        row.append(type)
+                    val['rows'].append(row)
     return
 
 def gif_to_png(img,pokeIdx,genIdx):
-    frames = []
-    for frame in iter_frames(img):
-        frames.append(frame)
-    rand_frame = np.random.randint(0,len(frames))
-    frame = frames[rand_frame]
-    frame.save('gen%d/%d.png' % (genIdx,pokeIdx))
+    for i,frame in enumerate(iter_frames(img)):
+        frame.save('gen%d/%d/%d-%d.png' % (genIdx,pokeIdx,pokeIdx,i))
     return
 
 def main():
@@ -130,6 +127,11 @@ def main():
         if i > d['%d' % genIdx]['max']:
             split_dataset(split,types,genIdx)
             genIdx += 1
+
+        # Make the directory for the pokemon
+        dnme = 'gen%d/%d/' % (genIdx,i)
+        if not os.path.isdir(dnme):
+            os.mkdir(dnme)
 
         # Download the gif here
         download_gif(i)

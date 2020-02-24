@@ -15,9 +15,9 @@ import torch.nn.functional as F
 class Net(nn.Module):
     def __init__(self,f,p):
         super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(3, 3, 5)
+        self.conv1 = nn.Conv2d(3, 16, 5)
         self.pool = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(12*12*3, 100)
+        self.fc1 = nn.Linear(12*12*16, 100)
         self.fc2 = nn.Linear(100, 18)
 
     def forward(self, x):
